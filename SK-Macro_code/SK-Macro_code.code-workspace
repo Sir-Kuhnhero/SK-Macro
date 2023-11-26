@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"name": "SK-Macro_code",
+			"path": "."
+		},
+		{
+			"path": "../../Arduino-basic-implmentations/I2C Scan"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"ostream": "cpp"
+		}
+	}
+}
