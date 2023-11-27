@@ -1,9 +1,21 @@
-// #include <Arduino.h>
+#include <Arduino.h>
+
+// #define ArduinoIDE
+#define SERIAL_OUT
+#ifdef ArduinoIDE
+#undef SERIAL_OUT
+#endif
+
+#ifdef ArduinoIDE
 #include "Adafruit_TinyUSB.h"
+#endif
 #include <Wire.h>
+// #include "wiring_private.h"
 #include <Adafruit_MCP23X17.h>
 
 // #define HID
+
+#define INTERUPT_PIN 4
 
 #ifdef HID
 // HID report descriptor using TinyUSB's template
@@ -15,10 +27,6 @@ uint8_t const desc_hid_report[] =
 // USB HID object. For ESP32 these values cannot be changed after this declaration
 // desc report, desc len, protocol, interval, use out endpoint
 Adafruit_USBD_HID usb_hid(desc_hid_report, sizeof(desc_hid_report), HID_ITF_PROTOCOL_NONE, 2, false);
-#endif
-
-Adafruit_MCP23X17 mcp; // Create MCP23017 device
-MbedI2C I2C1(6, 7);    // Create a new I2C bus on pins 6 and 7 (SDA, SCL)
 
 uint8_t keycodes[16] = {
     HID_KEY_A,
@@ -37,12 +45,27 @@ uint8_t keycodes[16] = {
     HID_KEY_N,
     HID_KEY_O,
     HID_KEY_P};
+#endif
+
+Adafruit_MCP23X17 mcp; // Create MCP23017 device
+
+#ifndef ArduinoIDE
+TwoWire I2C1(6, 7); // Create a new I2C bus on pins 6 and 7 (SDA, SCL)
+#endif
+
+void switchChange();
+void hidOut(uint16_t pinValues);
+uint16_t readMCP();
+void failsafe(String error = "Unknown error");
 
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
+  // attachInterrupt(digitalPinToInterrupt(INTERUPT_PIN), readMCP, FALLING);
 
+#ifdef SERIAL_OUT
   Serial.begin(115200);
+
   Serial.println("Wait for serial port to be opened...");
 
   while (!Serial.available())
@@ -60,28 +83,31 @@ void setup()
   Serial.println("");
 
   Serial.println("HID example");
+#endif
 
-  if (mcp.begin_I2C(0x20, &I2C1)) // use default address 0
+#pragma region MCP23017
+#ifdef ArduinoIDE
+  if (!mcp.begin_I2C(0x20, &Wire1))
   {
-    Serial.println("mcp.begin_I2C(0) success");
+    failsafe(); // go into failsafe
   }
-  else
+#endif
+#ifndef ArduinoIDE
+  if (!mcp.begin_I2C(0x20, &I2C1))
   {
-    Serial.println("mcp.begin_I2C(0) failed");
+    failsafe(); // go into failsafe
+  }
+#endif
 
-    while (true)
-    {
-      digitalWrite(LED_BUILTIN, HIGH);
-      delay(1000);
-      digitalWrite(LED_BUILTIN, LOW);
-      delay(1000);
-    }
-  }
+  mcp.pinMode(INTERUPT_PIN, INPUT);            // Set the interrupt pin as an input
+  mcp.setupInterrupts(true, false, HIGH);      // Set interrupt to active-low, open drain mode
+  mcp.setupInterruptPin(INTERUPT_PIN, CHANGE); // Set pin to trigger interrupt on state change
 
   for (int i = 0; i < 16; i++)
   {
     mcp.pinMode(i, INPUT_PULLUP);
   }
+#pragma endregion
 
 #ifdef HID
   usb_hid.begin();
@@ -99,48 +125,62 @@ void setup()
 
 void loop()
 {
+}
 
-  bool pressedKeys[16] = {false};
+void switchChange()
+{
+  uint16_t pinValues = readMCP();
 
-  for (int i = 0; i < 16; i++)
-  {
-    pressedKeys[i] = !mcp.digitalRead(i);
-  }
+#ifdef HID
+  hidOut(pinValues);
+#endif
+}
 
+#ifdef HID
+void hidOut(uint16_t pinValues)
+{
   uint8_t const report_id = 0;
   uint8_t const modifier = 0;
 
   uint8_t keycode[16] = {0};
 
-  bool output = false;
-
   for (int i = 0; i < 16; i++)
   {
-    if (pressedKeys[i])
+    if (pinValues & (1 << i))
     {
-      Serial.print("Pressed key: ");
-      Serial.print(i);
-      Serial.print("; ");
-
       keycode[i] = keycodes[i];
-
-      output = true;
     }
   }
+  Serial.println("");
 
-  if (output)
-  {
-    Serial.println("");
-  }
-
-#ifdef HID
   usb_hid.keyboardReport(report_id, modifier, keycode);
-  delay(10);
-  usb_hid.keyboardRelease(0);
+}
 #endif
 
-  delay(50);
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(50);
-  digitalWrite(LED_BUILTIN, LOW);
+uint16_t readMCP()
+{
+  uint16_t pinValues = mcp.readGPIOAB(); // Read the pin values from the MCP23017
+
+#ifdef SERIAL_OUT
+  Serial.print("interrupt: ");
+  Serial.print(pinValues, BIN);
+  Serial.println("");
+#endif
+
+  return pinValues;
+}
+
+void failsafe(String error = "Unknown error")
+{
+  while (true)
+  {
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(1000);
+    digitalWrite(LED_BUILTIN, LOW);
+    delay(1000);
+
+#ifdef SERIAL_OUT
+    Serial.println(error);
+#endif
+  }
 }

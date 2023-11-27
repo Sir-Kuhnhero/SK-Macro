@@ -3,14 +3,22 @@
 		{
 			"name": "SK-Macro_code",
 			"path": "."
-		},
-		{
-			"path": "../../Arduino-basic-implmentations/I2C Scan"
 		}
 	],
 	"settings": {
 		"files.associations": {
-			"ostream": "cpp"
+			"ostream": "cpp",
+			"*.tcc": "cpp",
+			"array": "cpp",
+			"deque": "cpp",
+			"forward_list": "cpp",
+			"list": "cpp",
+			"string": "cpp",
+			"unordered_map": "cpp",
+			"unordered_set": "cpp",
+			"vector": "cpp",
+			"string_view": "cpp",
+			"initializer_list": "cpp"
 		}
 	}
 }
