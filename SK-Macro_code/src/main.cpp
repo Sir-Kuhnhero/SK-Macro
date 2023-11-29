@@ -1,30 +1,26 @@
 #include <Arduino.h>
 
-// #define HID
-// #define ArduinoIDE
+#define HID
+#define MCP23017
 #define SERIAL_OUT
+
 #ifdef HID
 #undef SERIAL_OUT
 #endif
 
 #ifdef HID
-// #include "Adafruit_TinyUSB.h"
+#include "Adafruit_TinyUSB.h"
 #endif
 #include <Wire.h>
-// #include "wiring_private.h"
 #include <Adafruit_MCP23X17.h>
 
 #define INTERUPT_PIN 29
 
 #ifdef HID
-// HID report descriptor using TinyUSB's template
-// Single Report (no ID) descriptor
 uint8_t const desc_hid_report[] =
     {
         TUD_HID_REPORT_DESC_KEYBOARD()};
 
-// USB HID object. For ESP32 these values cannot be changed after this declaration
-// desc report, desc len, protocol, interval, use out endpoint
 Adafruit_USBD_HID usb_hid(desc_hid_report, sizeof(desc_hid_report), HID_ITF_PROTOCOL_NONE, 2, false);
 
 uint8_t keycodes[16] = {
@@ -46,15 +42,17 @@ uint8_t keycodes[16] = {
     HID_KEY_P};
 #endif
 
+#ifdef MCP23017
 Adafruit_MCP23X17 mcp; // Create MCP23017 device
 
-#ifndef ArduinoIDE
-TwoWire I2C1(i2c0, 6, 7); // Create a new I2C bus on pins 6 and 7 (SDA, SCL)
+TwoWire I2C1(i2c1, 6, 7); // Create a new I2C bus on pins 6 and 7 (SDA, SCL)
+
+uint16_t pinValues = 0xFFFF;
 #endif
 
 void switchChange();
 void hidOut(uint16_t pinValues);
-bool readMCP();
+uint16_t readMCP();
 void failsafe(String error);
 
 void setup()
@@ -75,9 +73,9 @@ void setup()
   for (int i = 0; i < 20; i++)
   {
     digitalWrite(LED_BUILTIN, HIGH);
-    delay(50);
+    delay(25);
     digitalWrite(LED_BUILTIN, LOW);
-    delay(50);
+    delay(25);
 
     Serial.print(".");
   }
@@ -86,70 +84,66 @@ void setup()
   Serial.println("HID example");
 #endif
 
-#pragma region MCP23017
-#ifdef ArduinoIDE
-  if (!mcp.begin_I2C(0x20, &Wire1))
-  {
-    failsafe("mcp init failure"); // go into failsafe
-  }
-#endif
-#ifndef ArduinoIDE
+#ifdef MCP23017
   if (!mcp.begin_I2C(0x20, &I2C1))
   {
     failsafe("mcp init failure"); // go into failsafe
   }
-#endif
 
   mcp.setupInterrupts(true, false, LOW); // Set interrupt to active-low, open drain mode
 
   for (int i = 0; i < 16; i++)
   {
     mcp.pinMode(i, INPUT_PULLUP);
+
     mcp.setupInterruptPin(i, CHANGE); // Set pin to trigger interrupt on state change
   }
-
   mcp.clearInterrupts();
-#pragma endregion
+#endif
 
 #ifdef HID
-  usb_hid.begin();
+  if (!usb_hid.begin())
+  {
+    failsafe("usb_hid init failure"); // go into failsafe
+  }
 
   // wait until device mounted
   while (!TinyUSBDevice.mounted())
   {
     digitalWrite(LED_BUILTIN, HIGH);
-    delay(1000);
+    delay(100);
     digitalWrite(LED_BUILTIN, LOW);
-    delay(1000);
+    delay(100);
   }
 #endif
 }
 
 void loop()
 {
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(1000);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(1000);
+  uint8_t const report_id = 0;
+  uint8_t const modifier = 0;
+  uint8_t keycode[16] = {0};
 
-  Serial.println("loop");
+  for (int i = 0; i < 16; i++)
+  {
+    if (!(pinValues & (1 << i)))
+    {
+      keycode[i] = keycodes[i];
+    }
+  }
+
+  usb_hid.keyboardReport(report_id, modifier, keycode);
 }
 
 void switchChange()
 {
-  Serial.print("inputs read: ");
-  Serial.println("switchChange");
-  // bool pinValues = readMCP();
-  // Serial.println(pinValues);
-
-#ifdef HID
-  hidOut(pinValues);
-#endif
+  readMCP();
 }
 
-#ifdef HID
+/*
 void hidOut(uint16_t pinValues)
 {
+#ifdef HID
   uint8_t const report_id = 0;
   uint8_t const modifier = 0;
 
@@ -157,41 +151,28 @@ void hidOut(uint16_t pinValues)
 
   for (int i = 0; i < 16; i++)
   {
-    if (pinValues & (1 << i))
+    if (!(pinValues & (1 << i)))
     {
       keycode[i] = keycodes[i];
     }
   }
-  Serial.println("");
 
   usb_hid.keyboardReport(report_id, modifier, keycode);
-}
+  delay(10);
+  usb_hid.keyboardRelease(report_id);
 #endif
+}
+*/
 
-bool readMCP()
+uint16_t readMCP()
 {
-  // uint16_t pinValues = mcp.readGPIOAB(); // Read the pin values from the MCP23017
-  Serial.println("readMCP");
-  // if the first pin is 0 return 0000000000000000 otherwise return 1000000000000000
-  if (mcp.digitalRead(0) == 0)
-  {
-    Serial.println("0");
-    return 0;
-  }
-  else
-  {
-    Serial.println("1");
-    return 1;
-  }
-  /*
-  #ifdef SERIAL_OUT
-    Serial.print("interrupt: ");
-    Serial.print(pinValues, BIN);
-    Serial.println("");
-  #endif
+#ifdef MCP23017
+  pinValues = mcp.readGPIOAB(); // Read the pin values from the MCP23017
 
   return pinValues;
-  */
+#endif
+
+  return 0;
 }
 
 void failsafe(String error)
