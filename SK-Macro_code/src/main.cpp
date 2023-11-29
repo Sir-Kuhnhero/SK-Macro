@@ -1,21 +1,20 @@
 #include <Arduino.h>
 
+// #define HID
 // #define ArduinoIDE
 #define SERIAL_OUT
-#ifdef ArduinoIDE
+#ifdef HID
 #undef SERIAL_OUT
 #endif
 
-#ifdef ArduinoIDE
-#include "Adafruit_TinyUSB.h"
+#ifdef HID
+// #include "Adafruit_TinyUSB.h"
 #endif
 #include <Wire.h>
 // #include "wiring_private.h"
 #include <Adafruit_MCP23X17.h>
 
-// #define HID
-
-#define INTERUPT_PIN 4
+#define INTERUPT_PIN 29
 
 #ifdef HID
 // HID report descriptor using TinyUSB's template
@@ -50,18 +49,20 @@ uint8_t keycodes[16] = {
 Adafruit_MCP23X17 mcp; // Create MCP23017 device
 
 #ifndef ArduinoIDE
-TwoWire I2C1(6, 7); // Create a new I2C bus on pins 6 and 7 (SDA, SCL)
+TwoWire I2C1(i2c0, 6, 7); // Create a new I2C bus on pins 6 and 7 (SDA, SCL)
 #endif
 
 void switchChange();
 void hidOut(uint16_t pinValues);
-uint16_t readMCP();
-void failsafe(String error = "Unknown error");
+bool readMCP();
+void failsafe(String error);
 
 void setup()
 {
   pinMode(LED_BUILTIN, OUTPUT);
-  // attachInterrupt(digitalPinToInterrupt(INTERUPT_PIN), readMCP, FALLING);
+  pinMode(INTERUPT_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(INTERUPT_PIN), switchChange, FALLING);
+  interrupts();
 
 #ifdef SERIAL_OUT
   Serial.begin(115200);
@@ -89,24 +90,25 @@ void setup()
 #ifdef ArduinoIDE
   if (!mcp.begin_I2C(0x20, &Wire1))
   {
-    failsafe(); // go into failsafe
+    failsafe("mcp init failure"); // go into failsafe
   }
 #endif
 #ifndef ArduinoIDE
   if (!mcp.begin_I2C(0x20, &I2C1))
   {
-    failsafe(); // go into failsafe
+    failsafe("mcp init failure"); // go into failsafe
   }
 #endif
 
-  mcp.pinMode(INTERUPT_PIN, INPUT);            // Set the interrupt pin as an input
-  mcp.setupInterrupts(true, false, HIGH);      // Set interrupt to active-low, open drain mode
-  mcp.setupInterruptPin(INTERUPT_PIN, CHANGE); // Set pin to trigger interrupt on state change
+  mcp.setupInterrupts(true, false, LOW); // Set interrupt to active-low, open drain mode
 
   for (int i = 0; i < 16; i++)
   {
     mcp.pinMode(i, INPUT_PULLUP);
+    mcp.setupInterruptPin(i, CHANGE); // Set pin to trigger interrupt on state change
   }
+
+  mcp.clearInterrupts();
 #pragma endregion
 
 #ifdef HID
@@ -125,11 +127,20 @@ void setup()
 
 void loop()
 {
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(1000);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(1000);
+
+  Serial.println("loop");
 }
 
 void switchChange()
 {
-  uint16_t pinValues = readMCP();
+  Serial.print("inputs read: ");
+  Serial.println("switchChange");
+  // bool pinValues = readMCP();
+  // Serial.println(pinValues);
 
 #ifdef HID
   hidOut(pinValues);
@@ -157,20 +168,33 @@ void hidOut(uint16_t pinValues)
 }
 #endif
 
-uint16_t readMCP()
+bool readMCP()
 {
-  uint16_t pinValues = mcp.readGPIOAB(); // Read the pin values from the MCP23017
-
-#ifdef SERIAL_OUT
-  Serial.print("interrupt: ");
-  Serial.print(pinValues, BIN);
-  Serial.println("");
-#endif
+  // uint16_t pinValues = mcp.readGPIOAB(); // Read the pin values from the MCP23017
+  Serial.println("readMCP");
+  // if the first pin is 0 return 0000000000000000 otherwise return 1000000000000000
+  if (mcp.digitalRead(0) == 0)
+  {
+    Serial.println("0");
+    return 0;
+  }
+  else
+  {
+    Serial.println("1");
+    return 1;
+  }
+  /*
+  #ifdef SERIAL_OUT
+    Serial.print("interrupt: ");
+    Serial.print(pinValues, BIN);
+    Serial.println("");
+  #endif
 
   return pinValues;
+  */
 }
 
-void failsafe(String error = "Unknown error")
+void failsafe(String error)
 {
   while (true)
   {
