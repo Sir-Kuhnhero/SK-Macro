@@ -5,12 +5,8 @@
 			"path": "."
 		},
 		{
-			"name": "Arduino-Pico Core",
-			"path": "../../Arduino-basic-implmentations/Arduino-Pico Core"
-		},
-		{
-			"name": "I2C Scan",
-			"path": "../../Arduino-basic-implmentations/I2C Scan"
+			"name": "Hexapod_code",
+			"path": "../../Hexapod/Hexapod_code"
 		}
 	],
 	"settings": {

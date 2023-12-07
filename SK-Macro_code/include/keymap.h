@@ -1,0 +1,19 @@
+#include <header.h>
+
+uint8_t keycodes[][6] = {
+    {HID_KEY_ESCAPE},
+    {HID_KEY_CONTROL_LEFT, HID_KEY_X},
+    {HID_KEY_CONTROL_LEFT, HID_KEY_C},
+    {HID_KEY_CONTROL_LEFT, HID_KEY_F5},
+    {HID_KEY_SHIFT_LEFT, HID_KEY_GUI_LEFT, HID_KEY_S},
+    {HID_KEY_CONTROL_LEFT, HID_KEY_V},
+    {HID_KEY_GUI_LEFT, HID_KEY_H},
+    {HID_KEY_MENU},
+    {HID_KEY_SHIFT_LEFT, HID_KEY_S, HID_KEY_U, HID_KEY_S, HID_KEY_S, HID_KEY_Y},
+    {HID_KEY_SCROLL_LOCK},
+    {HID_KEY_J},
+    {HID_KEY_K},
+    {HID_KEY_L},
+    {HID_KEY_M},
+    {HID_KEY_N},
+    {HID_KEY_O}};
