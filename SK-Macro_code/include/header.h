@@ -4,9 +4,7 @@
 #include <SoftwareSerial.h>
 #include "Adafruit_TinyUSB.h"
 
-#define HID
-#define MCP23017
-// #define SERIAL_OUT
+// #define SERIAL_OUT // used for debugging and not compatible with tinyUSB
 
 #define INTERUPT_PIN 29
 

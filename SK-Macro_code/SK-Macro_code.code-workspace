@@ -3,10 +3,6 @@
 		{
 			"name": "SK-Macro_code",
 			"path": "."
-		},
-		{
-			"name": "Hexapod_code",
-			"path": "../../Hexapod/Hexapod_code"
 		}
 	],
 	"settings": {

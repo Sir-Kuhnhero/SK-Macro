@@ -11,9 +11,9 @@ uint8_t keycodes[][6] = {
     {HID_KEY_MENU},
     {HID_KEY_SHIFT_LEFT, HID_KEY_S, HID_KEY_U, HID_KEY_S, HID_KEY_S, HID_KEY_Y},
     {HID_KEY_SCROLL_LOCK},
-    {HID_KEY_J},
-    {HID_KEY_K},
     {HID_KEY_L},
-    {HID_KEY_M},
-    {HID_KEY_N},
-    {HID_KEY_O}};
+    {0x18},
+    {HID_KEY_SHIFT_LEFT, HID_KEY_1},
+    {HID_KEY_G, HID_KEY_R, HID_KEY_E, HID_KEY_A, HID_KEY_T},
+    {HID_KEY_CONTROL_LEFT, HID_KEY_ALT_LEFT, HID_KEY_L},
+    {HID_KEY_G, HID_KEY_R, HID_KEY_E, HID_KEY_A, HID_KEY_T}};

@@ -1,2 +1,17 @@
 # SK Macro
- 
+
+Welcome to the SK Macro project. This is the first version of my macro pad and while it's far from perfect, it's a start.
+
+Building your own is possible, though I wouldn't wholeheartedly recommend it unless you're are willing to make some sacrifices. 
+
+# Hardware
+
+My version is compatible with both Choc and MX switches using hot-swap sockets. As long as you solder the correct socket, you can easily swap your switches.
+
+If you decide to build your own version make sure to solder the IO expander in the correct oriantation. In general it would be best to have the Fusion project open as a reference
+
+# Firmware
+
+In terms of firmware, I was forced to create my own. It's currently missing a lot of features, but it's a work in progress. I wasn't able to get KMK to work since I used an IO expander without a keyboard matrix. As I have never used KMK before, I wasn't able to configure it. However, if you're able to do it, I would love to hear your input. It should be possible.
+
+Thank you for your interest in the SK Macro project. Any feedback or contributions are greatly appreciated.

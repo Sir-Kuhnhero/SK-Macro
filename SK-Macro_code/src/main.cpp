@@ -1,18 +1,14 @@
 #include "header.h"
 #include "keymap.h"
 
-#ifdef HID
 uint8_t const desc_hid_report[] = {TUD_HID_REPORT_DESC_KEYBOARD()};
 Adafruit_USBD_HID usb_hid(desc_hid_report, sizeof(desc_hid_report), HID_ITF_PROTOCOL_NONE, 2, false);
 Adafruit_USBD_MSC usb_msc;
-#endif
 
-#ifdef MCP23017
 Adafruit_MCP23X17 mcp;
 TwoWire I2C1(i2c1, 6, 7); // Create a new I2C bus on pins 6 and 7 (SDA, SCL)
 
 uint16_t pinValues = 0xFFFF;
-#endif
 
 void switchChange();
 void readMCP();
@@ -47,9 +43,15 @@ void setup()
   Serial.println("HID example");
 #endif
 
-#ifdef MCP23017
   if (!mcp.begin_I2C(0x20, &I2C1))
   {
+    while (true)
+    {
+      digitalWrite(LED_BUILTIN, HIGH);
+      delay(500);
+      digitalWrite(LED_BUILTIN, LOW);
+      delay(500);
+    }
     failsafe("mcp init failure"); // go into failsafe
   }
 
@@ -62,9 +64,7 @@ void setup()
     mcp.setupInterruptPin(i, CHANGE); // Set pin to trigger interrupt on state change
   }
   mcp.clearInterrupts();
-#endif
 
-#ifdef HID
   if (!usb_hid.begin())
   {
     failsafe("usb_hid init failure"); // go into failsafe
@@ -87,12 +87,10 @@ void setup()
   {
     usb_msc.setUnitReady(true);
   }
-#endif
 }
 
 void loop()
 {
-#ifdef HID &&MCP23017
   uint8_t const report_id = 0;
   uint8_t const modifier = 0;
 
@@ -121,8 +119,6 @@ void loop()
   }
 
   usb_hid.keyboardReport(report_id, modifier, keycode);
-
-#endif
 }
 
 void switchChange()
@@ -132,9 +128,7 @@ void switchChange()
 
 void readMCP()
 {
-#ifdef MCP23017
   pinValues = mcp.readGPIOAB(); // Read the pin values from the MCP23017
-#endif
 }
 
 void failsafe(String error)
@@ -144,7 +138,7 @@ void failsafe(String error)
     digitalWrite(LED_BUILTIN, HIGH);
     delay(1000);
     digitalWrite(LED_BUILTIN, LOW);
-    delay(1000);
+    delay(500);
 
 #ifdef SERIAL_OUT
     Serial.println(error);
