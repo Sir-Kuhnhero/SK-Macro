@@ -2,7 +2,9 @@
 
 Welcome to the SK Macro project. This is the first version of my macro pad and while it's far from perfect, it's a start.
 
-![alt text](https://github.com/Sir-Kuhnhero/SK-Macro/blob/main/img/Thumbnail%20-%202.jpg?raw=true)
+Watch the build video ↓
+
+[<img src="/img/Thumbnail%20-%202.jpg">](https://www.youtube.com/watch?v=0lB-7FOjO98)
 
 Building your own is possible, though I wouldn't wholeheartedly recommend it unless you're are willing to make some sacrifices. 
 
