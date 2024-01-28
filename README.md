@@ -6,7 +6,9 @@ Watch the build video ↓
 
 [<img src="/img/Thumbnail%20-%202.jpg">](https://www.youtube.com/watch?v=0lB-7FOjO98)
 
-Building your own is possible, though I wouldn't wholeheartedly recommend it unless you're are willing to make some sacrifices. 
+Building your own is possible, though I wouldn't wholeheartedly recommend it unless you're are willing to make some sacrifices.
+
+If you want to take a look at the Fusion files you can find them on [Printables](https://www.printables.com/model/741922). Due to bandwith limitations I can't upload them here :(
 
 # Hardware
 
