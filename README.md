@@ -12,13 +12,13 @@ If you want to take a look at the Fusion files you can find them on [Printables]
 
 # Hardware
 
+<a href="https://www.pcbway.com/project/shareproject/DIY_Macropad_ab1137f4.html"><img src="https://www.pcbway.com/project/img/images/frompcbway-1220.png" alt="PCB from PCBWay" /></a>
+
 My version is compatible with both Choc and MX switches using hot-swap sockets. As long as you solder the correct socket, you can easily swap your switches.
 
 If you decide to build your own version make sure to solder the IO expander in the correct oriantation. In general it would be best to have the Fusion project open as a reference
 
 I originally planned to make this Macropad wireless, but that ultimately didn't work out. I tried reflashing an HC-05 with firmware that should make it HID compatible, but I couldn't get it to work. For this reason, most of the components are not necessary.
-
-<img src="/img/Thumbnail%20-%202.jpg">
 
 # Firmware
 
