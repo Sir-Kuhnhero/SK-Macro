@@ -18,8 +18,12 @@ If you decide to build your own version make sure to solder the IO expander in t
 
 I originally planned to make this Macropad wireless, but that ultimately didn't work out. I tried reflashing an HC-05 with firmware that should make it HID compatible, but I couldn't get it to work. For this reason, most of the components are not necessary.
 
+<img src="/img/Thumbnail%20-%202.jpg">
+
 # Firmware
 
-In terms of firmware, I was forced to create my own. It's currently missing a lot of features, but it's a work in progress. I wasn't able to get KMK to work since I used an IO expander without a keyboard matrix. As I have never used KMK before, I wasn't able to configure it. However, if you're able to do it, I would love to hear your input. It should be possible.
+In terms of firmware, I was forced to create my own. It's currently missing a lot of features, but it's a work in progress. If you want to compile it ypu will need to install a few things apart from VS Code and the PlatformIO addin. Instructions for this can be found [here](https://arduino-pico.readthedocs.io/en/latest/platformio.html)
+
+I wasn't able to get KMK to work since I used an IO expander without a keyboard matrix. As I have never used KMK before, I wasn't able to configure it. However, if you're able to do it, I would love to hear your input. It should be possible.
 
 Thank you for your interest in the SK Macro project. Any feedback or contributions are greatly appreciated.
