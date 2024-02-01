@@ -12,7 +12,7 @@ If you want to take a look at the Fusion files you can find them on [Printables]
 
 # Hardware
 
-<a href="https://www.pcbway.com/project/shareproject/DIY_Macropad_ab1137f4.html"><img src="/img/banner.rar" alt="PCB from PCBWay" /></a>
+<a href="https://www.pcbway.com/project/shareproject/DIY_Macropad_ab1137f4.html"><img src="/img/banner.jpg" alt="PCB from PCBWay" /></a>
 
 My version is compatible with both Choc and MX switches using hot-swap sockets. As long as you solder the correct socket, you can easily swap your switches.
 
